@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let upTimerId;
     let downTimerId;
     let isJumping = true;
+    let isGoingLeft = false;
+    let isGoingRight = false;
+    let leftTimerId;
+    let rightTimerId;
 
     function createDoodler() {
         grid.appendChild(doodler);
@@ -97,14 +101,49 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(downTimerId);
     }
 
-    function control() {
+    function control(e) {
         if (e.key === "ArrowLeft") {
-            //TODO: move left
+            moveLeft();
         } else if (e.key === "ArrowRight") {
-            //TODO: move right
+            moveRight();
         } else if (e.key === "ArrowUp") {
-            //TODO: moveStraight
+            moveStraight();
         }
+    }
+
+    function moveLeft() {
+        if (isGoingRight) {
+            clearInterval(rightTimerId);
+            isGoingRight = false;
+        }
+        isGoingLeft = true;
+        leftTimerId = setInterval(function () {
+            if (doodlerLeftSpace >= 0) {
+                doodlerLeftSpace -= 5;
+                doodler.style.left = doodlerLeftSpace + 'px';
+            } else moveRight()
+        }, 30);
+    }
+    
+    function moveRight() {
+        if (isGoingLeft) {
+            clearInterval(leftTimerId);
+            isGoingLeft = false;
+        }
+        isGoingRight = true;
+        rightTimerId = setInterval(function () {
+            if (doodlerLeftSpace <= 340) {
+                doodlerLeftSpace += 5;
+                doodler.style.left = doodlerLeftSpace + 'px';
+            } else moveLeft()
+        }, 30);
+    }
+
+    function moveStraight() {
+        isGoingRight = false;
+        isGoingLeft = false;
+        clearInterval(rightTimerId);
+        clearInterval(leftTimerId);
     }
 
     function start() {
@@ -113,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createDoodler();
             setInterval(movePlatforms, 30);
             jump();
+            document.addEventListener('keyup', control);
         }
     }
     //TODO: attach to button
